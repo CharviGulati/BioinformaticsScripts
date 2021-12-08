@@ -4,7 +4,7 @@ echo "Started script"
 
 
 textFiles=/projects/micb405/analysis/Group1/textFiles/SraSpecificChipSeq.txt
-chipSeq=/projects/micb405/analysis/Group1/chipSeq
+chipSeq=/projects/micb405/analysis/Group1/chipSeq/files/fastqFiles
 RefGenome=/projects/micb405/analysis/Group1/referenceGenome/mm9Genome.fasta
 gtfFile=/projects/micb405/analysis/Group1/chipSeq/referenceGTFmm9/gencode.vM1.annotation.gtf.bed
 
