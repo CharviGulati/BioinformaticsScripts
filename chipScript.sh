@@ -1,19 +1,13 @@
 #!/bin/bash
 echo "Started script"
 
-
-
 textFiles=/projects/micb405/analysis/Group1/textFiles/SraSpecificChipSeq.txt
 chipSeq=/projects/micb405/analysis/Group1/chipSeq/files/fastqFiles
-RefGenome=/projects/micb405/analysis/Group1/referenceGenome/mm9Genome.fasta
+refGenome=/projects/micb405/analysis/Group1/referenceGenome/mm9Genome.fasta
 gtfFile=/projects/micb405/analysis/Group1/chipSeq/referenceGTFmm9/gencode.vM1.annotation.gtf.bed
-
 macsFiles=/projects/micb405/analysis/Group1/chipSeq/files/macsFiles/
 
-
-
-
-#referenceGenome is indexed already
+#refGenome is indexed
 
 #downloading each SRR file from the server and output into the dir chipSeq
 
@@ -29,12 +23,9 @@ done < $textFiles
 
 for file in "$chipSeq"/*.fastq
 do
-#    echo "$file"
-#    echo $file
-#    SRR1521828.fastq
     echo "Aligning SRR to Reference Genome..."
-    bwa aln "$RefGenome" "$file" > aligned.sai
-    bwa samse "$RefGenome" aligned.sai "$file" > file.sam
+    bwa aln "$refGenome" "$file" > aligned.sai
+    bwa samse "$refGenome" aligned.sai "$file" > file.sam
     echo "Converting SAM to BAM..."
     samtools view -h -b file.sam > file.bam
     echo "Taging mates..."
@@ -78,21 +69,10 @@ do
         bedGraphToBigWig "$file" mm9.chrom.sizes "$file".sorted.bw
 done
 
-
-
-
-
-
-
-# echo "STARTING SCRIPT FOR PEAK INFO" > infoLog2.txt
-
 for file in "$macsFiles"/*.bdg_peaks.narrowPeak;
 do
         path=`echo "$file" | cut -d . -f1`
         basename=`echo "$path" | cut -d / -f10`
-
-        echo "$path"            #/projects/micb405/analysis/Group1/chipSeq/files/macsFiles//SRR1521828
-        echo "$basename"        #SRR1521834
 
         echo "CHiP Seq data on "$basename" " >> infoLog2.txt
         
@@ -102,7 +82,6 @@ do
         # What genes (if any) fall directly under the peaks, and how large is the overlap?
         # For very large B files, invoke a “sweeping” algorithm that requires position-sorted 
         # input. When using -sorted, memory usage remains low even for very large files.
-       
         bedtools intersect -sorted -a "$basename".sorted.bed -b "$gtfFile" > "$basename".narrowPeak.genes.bed
         # the overlap size is the last column
 
