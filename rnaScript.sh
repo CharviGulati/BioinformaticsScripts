@@ -3,32 +3,31 @@ echo "Started RNA Seq script"
 
 
 rnaSeq=/projects/micb405/analysis/Group1/rnaSeq
-RefGenome=/projects/micb405/analysis/Group1/rnaSeq/mm9Genome.fasta
+refGenome=/projects/micb405/analysis/Group1/rnaSeq/mm9Genome.fasta
 textFiles=/projects/micb405/analysis/Group1/textFiles/SraSpecificRnaSeq.txt
 gtfFile=/projects/micb405/analysis/Group1/rnaSeq/referenceGTFmm9/gencode.vM1.annotation.gtf
 starFiles=/projects/micb405/analysis/Group1/rnaSeq/starSRRFiles
 
-
-
-
 #downloading each SRR file from the server and output into the dir chipSeq
 
-# while read sraNum; do
-#       echo "Downloading \"$sraNum\"..."
-#       fasterq-dump --split-3 "$sraNum" -O "$rnaSeq"
-# done < $textFiles
+while read sraNum; do
+      echo "Downloading \"$sraNum\"..."
+      fasterq-dump --split-3 "$sraNum" -O "$rnaSeq"
+done < $textFiles
 
 
-
+# Index refGenome
 STAR \
         --runMode genomeGenerate \
         --genomeDir /projects/micb405/analysis/Group1/rnaSeq/STARIndex \
-        --genomeFastaFiles "$RefGenome" \
+        --genomeFastaFiles "$refGenome" \
         --sjdbGTFfile "$gtfFile" \
         --sjdbOverhang 100 \
         --runThreadN 16
 
 
+
+# ALign files
 for file in "$rnaSeq"/*.gz
 do
         echo /projects/micb405/analysis/Group1/rnaSeq/SRR1536410 | cut -d / -f7
@@ -58,15 +57,11 @@ do
 done
 
 
-
+# Performing htseq-count
 for file in "$starFiles"/*.sortedByCoord.out.bam
 do
         path=`echo "$file" | cut -d . -f1`
         basename=`echo "$path" | cut -d / -f8`
-
-        echo "$path"
-        echo "$basename"
-        
         samtools index "$file"
 
         htseq-count \
